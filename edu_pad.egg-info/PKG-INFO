@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: edu_pad
+Version: 0.0.1
+Summary: A package for educational purposes
+Author: Juan Suarez Dev
+Author-email: juan.suarez@est.iudigital.edu.co
+Requires-Dist: pandas
+Requires-Dist: openpyxl
+Requires-Dist: requests
+Requires-Dist: beautifulsoup4
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
+Dynamic: summary
