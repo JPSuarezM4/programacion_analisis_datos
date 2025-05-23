@@ -73,6 +73,6 @@ jobs:
         if: steps.extract.outputs.extraction_success == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: dolar-data-csv-windows
+          name: sol-data-csv-windows
           path: src\edu_pad\static\csv\data_extractor.csv
           retention-days: 1

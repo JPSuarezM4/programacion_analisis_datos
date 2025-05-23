@@ -54,7 +54,7 @@ jobs:
         with:
           workflow: 1-Data-Extraction-Windows.yml
           workflow_conclusion: success
-          name: dolar-data-csv-windows
+          name: sol-data-csv-windows
           path: src\edu_pad\static\csv\
           
       - name: Verificar existencia del CSV
@@ -80,8 +80,8 @@ jobs:
       - name: Subir base de datos como artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: dolar-sqlite-db-windows
-          path: src\edu_pad\static\db\dolar_analisis.db
+          name: sol-sqlite-db-windows
+          path: src\edu_pad\static\db\sol_analisis.db
           retention-days: 7
           
       - name: Limpiar archivos CSV

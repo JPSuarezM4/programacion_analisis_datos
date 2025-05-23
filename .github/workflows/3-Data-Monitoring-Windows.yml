@@ -58,13 +58,13 @@ jobs:
         with:
           workflow: 2-Data-Ingestion-Windows.yml
           workflow_conclusion: success
-          name: dolar-sqlite-db-windows
+          name: sol-sqlite-db-windows
           path: src\edu_pad\static\db\
           
       - name: Verificar existencia de la base de datos
         id: check_db
         run: |
-          if (Test-Path "src\edu_pad\static\db\dolar_analisis.db") {
+          if (Test-Path "src\edu_pad\static\db\sol_analisis.db") {
             echo "db_exists=true" >> $env:GITHUB_OUTPUT
             echo "Base de datos encontrada. Procediendo con el monitoreo..."
           } else {
