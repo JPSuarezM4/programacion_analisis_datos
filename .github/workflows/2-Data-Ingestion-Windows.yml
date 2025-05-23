@@ -1,0 +1,93 @@
+name: 2-Data-Ingestion-Windows
+
+on:
+  workflow_run:
+    workflows: ["1-Data-Extraction-Windows"]
+    types:
+      - completed
+
+jobs:
+  ingest_data:
+    name: Ingestar datos en SQLite (Windows)
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      
+      - name: Actualizar setup.py si es necesario
+        run: |
+          $setupContent = Get-Content setup.py -Raw
+          if ($setupContent -like "*sqlite3-simple*") {
+            $updatedContent = $setupContent -replace '"sqlite3-simple",?', ''
+            $updatedContent | Set-Content setup.py -Force
+            echo "Se eliminó sqlite3-simple de setup.py"
+          } else {
+            echo "No se encontró sqlite3-simple en setup.py"
+          }
+        shell: pwsh
+          
+      - name: Crear entorno virtual
+        run: python -m venv venv
+        
+      - name: Activar entorno virtual e instalar dependencias
+        run: |
+          .\venv\Scripts\activate
+          python -m pip install --upgrade pip
+          pip install -e .
+        shell: pwsh
+          
+      - name: Crear directorios
+        run: |
+          if not exist "src\edu_pad\static\csv" mkdir src\edu_pad\static\csv
+          if not exist "src\edu_pad\static\db" mkdir src\edu_pad\static\db
+        shell: cmd
+          
+      - name: Descargar CSV desde artefactos
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: 1-Data-Extraction-Windows.yml
+          workflow_conclusion: success
+          name: dolar-data-csv-windows
+          path: src\edu_pad\static\csv\
+          
+      - name: Verificar existencia del CSV
+        id: check_csv
+        run: |
+          if (Test-Path "src\edu_pad\static\csv\data_extractor.csv") {
+            echo "csv_exists=true" >> $env:GITHUB_OUTPUT
+            echo "CSV encontrado. Procediendo con la ingesta..."
+          } else {
+            echo "csv_exists=false" >> $env:GITHUB_OUTPUT
+            echo "Error: CSV no encontrado"
+            exit 1
+          }
+        shell: pwsh
+          
+      - name: Ejecutar ingesta de datos
+        if: steps.check_csv.outputs.csv_exists == 'true'
+        run: |
+          .\venv\Scripts\activate
+          python src\edu_pad\main_ingesta.py
+        shell: pwsh
+        
+      - name: Subir base de datos como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: dolar-sqlite-db-windows
+          path: src\edu_pad\static\db\dolar_analisis.db
+          retention-days: 7
+          
+      - name: Limpiar archivos CSV
+        if: steps.check_csv.outputs.csv_exists == 'true'
+        run: |
+          echo Limpiando archivos CSV temporales...
+          del src\edu_pad\static\csv\data_extractor.csv
+          echo Archivos CSV eliminados correctamente
+        shell: cmd

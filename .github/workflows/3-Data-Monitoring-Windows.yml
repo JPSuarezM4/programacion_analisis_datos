@@ -1,0 +1,113 @@
+name: 3-Data-Monitoring-Windows
+
+on:
+  workflow_run:
+    workflows: ["2-Data-Ingestion-Windows"]
+    types:
+      - completed
+  schedule:
+    - cron: '0 */6 * * *'  # Ejecutar cada 6 horas
+  workflow_dispatch:  # Permite ejecución manual
+
+jobs:
+  monitor_database:
+    name: Monitorear base de datos (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      
+      - name: Actualizar setup.py si es necesario
+        run: |
+          $setupContent = Get-Content setup.py -Raw
+          if ($setupContent -like "*sqlite3-simple*") {
+            $updatedContent = $setupContent -replace '"sqlite3-simple",?', ''
+            $updatedContent | Set-Content setup.py -Force
+            echo "Se eliminó sqlite3-simple de setup.py"
+          } else {
+            echo "No se encontró sqlite3-simple en setup.py"
+          }
+        shell: pwsh
+          
+      - name: Crear entorno virtual
+        run: python -m venv venv
+        
+      - name: Activar entorno virtual e instalar dependencias
+        run: |
+          .\venv\Scripts\activate
+          python -m pip install --upgrade pip
+          pip install -e .
+        shell: pwsh
+          
+      - name: Crear directorios
+        run: |
+          if not exist "src\edu_pad\static\db" mkdir src\edu_pad\static\db
+          if not exist "src\edu_pad\static\logs" mkdir src\edu_pad\static\logs
+        shell: cmd
+          
+      - name: Descargar base de datos desde artefactos
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: 2-Data-Ingestion-Windows.yml
+          workflow_conclusion: success
+          name: dolar-sqlite-db-windows
+          path: src\edu_pad\static\db\
+          
+      - name: Verificar existencia de la base de datos
+        id: check_db
+        run: |
+          if (Test-Path "src\edu_pad\static\db\dolar_analisis.db") {
+            echo "db_exists=true" >> $env:GITHUB_OUTPUT
+            echo "Base de datos encontrada. Procediendo con el monitoreo..."
+          } else {
+            echo "db_exists=false" >> $env:GITHUB_OUTPUT
+            echo "Error: Base de datos no encontrada"
+            exit 1
+          }
+        shell: pwsh
+          
+      - name: Copiar script de monitoreo
+        if: steps.check_db.outputs.db_exists == 'true'
+        run: |
+          if not exist "src\edu_pad" mkdir src\edu_pad
+          copy monitor.py src\edu_pad\ 2>nul || echo Archivo no encontrado
+        shell: cmd
+          
+      - name: Ejecutar monitoreo
+        if: steps.check_db.outputs.db_exists == 'true'
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        run: |
+          .\venv\Scripts\activate
+          python src\edu_pad\monitor.py
+        shell: pwsh
+        
+      - name: Subir logs como artefacto
+        if: steps.check_db.outputs.db_exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-logs-windows
+          path: src\edu_pad\static\logs\
+          retention-days: 30
+          
+      - name: Actualizar logs en el repositorio
+        if: steps.check_db.outputs.db_exists == 'true' && github.event_name != 'schedule'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          git add src\edu_pad\static\logs\monitor_log.json -f
+          git commit -m "Actualiza logs de monitoreo [skip ci]" || echo "No hay cambios que commitear"
+          git push
+        shell: pwsh

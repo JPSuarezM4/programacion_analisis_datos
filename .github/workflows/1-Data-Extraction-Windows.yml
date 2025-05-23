@@ -1,0 +1,78 @@
+name: 1-Data-Extraction-Windows
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # Ejecutar cada 12 horas
+  workflow_dispatch:  # Permite ejecución manual
+
+jobs:
+  extract_data:
+    name: Extraer datos de Yahoo Finance (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      
+      - name: Actualizar setup.py si es necesario
+        run: |
+          $setupContent = Get-Content setup.py -Raw
+          if ($setupContent -like "*sqlite3-simple*") {
+            $updatedContent = $setupContent -replace '"sqlite3-simple",?', ''
+            $updatedContent | Set-Content setup.py -Force
+            echo "Se eliminó sqlite3-simple de setup.py"
+          } else {
+            echo "No se encontró sqlite3-simple en setup.py"
+          }
+        shell: pwsh
+          
+      - name: Crear entorno virtual
+        run: python -m venv venv
+
+      - name: Activar entorno virtual e instalar dependencias
+        run: |
+          .\venv\Scripts\activate
+          python -m pip install --upgrade pip
+          pip install -e .
+        shell: pwsh
+          
+      - name: Crear estructura de directorios
+        run: |
+          if not exist "src\edu_pad\static\csv" mkdir src\edu_pad\static\csv
+        shell: cmd
+          
+      - name: Ejecutar extracción de datos
+        id: extract
+        run: |
+          .\venv\Scripts\activate
+          python src\edu_pad\main_extractor.py
+          
+          REM Verificar si el archivo CSV existe y tiene contenido
+          if (Test-Path "src\edu_pad\static\csv\data_extractor.csv") {
+            if ((Get-Item "src\edu_pad\static\csv\data_extractor.csv").length -gt 0) {
+              echo "extraction_success=true" >> $env:GITHUB_OUTPUT
+              echo "Datos extraídos correctamente"
+            } else {
+              echo "extraction_success=false" >> $env:GITHUB_OUTPUT
+              echo "Error: CSV vacío"
+              exit 1
+            }
+          } else {
+            echo "extraction_success=false" >> $env:GITHUB_OUTPUT
+            echo "Error: No se pudo generar el CSV"
+            exit 1
+          }
+        shell: pwsh
+      
+      - name: Subir CSV como artefacto
+        if: steps.extract.outputs.extraction_success == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dolar-data-csv-windows
+          path: src\edu_pad\static\csv\data_extractor.csv
+          retention-days: 1
