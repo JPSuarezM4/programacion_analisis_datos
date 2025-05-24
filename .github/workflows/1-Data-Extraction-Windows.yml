@@ -3,7 +3,7 @@ name: 1-Data-Extraction-Windows
 on:
   schedule:
     - cron: '0 */12 * * *'  # Ejecutar cada 12 horas
-  workflow_dispatch:  # Permite ejecución manual
+  workflow_dispatch:
 
 jobs:
   extract_data:
@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-      
+
       - name: Actualizar setup.py si es necesario
         run: |
           $setupContent = Get-Content setup.py -Raw
@@ -30,29 +30,29 @@ jobs:
             echo "No se encontró sqlite3-simple en setup.py"
           }
         shell: pwsh
-          
-      - name: Crear entorno virtual
-        run: python -m venv venv
 
-      - name: Activar entorno virtual e instalar dependencias
+      - name: Crear entorno virtual e instalar dependencias
         run: |
-          .\venv\Scripts\activate
+          python -m venv venv
+          .\venv\Scripts\Activate.ps1
           python -m pip install --upgrade pip
           pip install -e .
         shell: pwsh
-          
+
       - name: Crear estructura de directorios
         run: |
-          if not exist "src\edu_pad\static\csv" mkdir src\edu_pad\static\csv
-        shell: cmd
-          
+          if (-not (Test-Path "src\edu_pad\static\csv")) {
+            New-Item -ItemType Directory -Path "src\edu_pad\static\csv" | Out-Null
+          }
+        shell: pwsh
+
       - name: Ejecutar extracción de datos
         id: extract
         run: |
-          .\venv\Scripts\activate
+          .\venv\Scripts\Activate.ps1
           python src\edu_pad\main_extractor.py
-          
-          REM Verificar si el archivo CSV existe y tiene contenido
+
+          # Verificar si el archivo CSV existe y tiene contenido
           if (Test-Path "src\edu_pad\static\csv\data_extractor.csv") {
             if ((Get-Item "src\edu_pad\static\csv\data_extractor.csv").length -gt 0) {
               echo "extraction_success=true" >> $env:GITHUB_OUTPUT
@@ -68,7 +68,7 @@ jobs:
             exit 1
           }
         shell: pwsh
-      
+
       - name: Subir CSV como artefacto
         if: steps.extract.outputs.extraction_success == 'true'
         uses: actions/upload-artifact@v4
