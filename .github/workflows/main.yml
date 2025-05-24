@@ -28,7 +28,7 @@ jobs:
       - name: Paso 6 - instalar dependencias
         run: pip install -e .
       - name: Paso 7 - Ejecutar Main
-        run: python src/edu_pad/main.py
+        run: python src/edu_pad/main_extractor.py
       - name: Paso 8 - Guardar el commit con el ultimo cambio desde pipeline
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
