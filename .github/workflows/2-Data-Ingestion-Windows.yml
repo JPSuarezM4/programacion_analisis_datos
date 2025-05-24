@@ -43,7 +43,7 @@ jobs:
         shell: cmd
           
       - name: Crear directorios
-        run: |
+        run: | 
           if not exist "src\edu_pad\static\csv" mkdir src\edu_pad\static\csv
           if not exist "src\edu_pad\static\db" mkdir src\edu_pad\static\db
         shell: cmd
@@ -71,9 +71,9 @@ jobs:
           
       - name: Ejecutar ingesta de datos
         if: steps.check_csv.outputs.csv_exists == 'true'
-        run: |
-          .\venv\Scripts\python.exe -m src.edu_pad.main_ingesta
+        run: .\venv\Scripts\python.exe src\edu_pad\main_ingesta.py
         shell: cmd
+
         
       - name: Subir base de datos como artefacto
         uses: actions/upload-artifact@v4
