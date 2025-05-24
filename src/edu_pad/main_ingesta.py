@@ -1,4 +1,4 @@
-from database import DataBase
+from edu_pad.database import DataBase
 import pandas as pd
 
 
