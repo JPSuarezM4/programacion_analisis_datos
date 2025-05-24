@@ -71,8 +71,11 @@ jobs:
           
       - name: Ejecutar ingesta de datos
         if: steps.check_csv.outputs.csv_exists == 'true'
-        run: .\venv\Scripts\python.exe src\edu_pad\main_ingesta.py
+        run: |
+          set PYTHONPATH=%CD%\src
+          .\venv\Scripts\python.exe -m edu_pad.main_ingesta
         shell: cmd
+
 
         
       - name: Subir base de datos como artefacto
