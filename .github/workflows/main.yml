@@ -10,7 +10,6 @@ jobs:
     permissions:
       contents: write
 
-
     steps:
       - name: Paso 1 - Checkout repo
         uses: actions/checkout@v4
@@ -19,20 +18,29 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9.2'
-      - name: Paso 3 - crea entorno virtual
+
+      - name: Paso 3 - Crear entorno virtual
         run: python -m venv venv
-      - name: Paso 4 - activar entorno virtual
-        run: ./venv/Scripts/activate   
-      - name: Paso 5 - actualizar pip
-        run: pip install --upgrade pip
-      - name: Paso 6 - instalar dependencias
-        run: pip install -e .
-      - name: Paso 7 - Ejecutar Main
-        run: python src/edu_pad/main_extractor.py
-      - name: Paso 8 - Guardar el commit con el ultimo cambio desde pipeline
+
+      - name: Paso 4 - Activar entorno virtual
+        run: ./venv/Scripts/activate
+
+      - name: Paso 5 - Actualizar pip
+        run: ./venv/Scripts/pip install --upgrade pip
+
+      - name: Paso 6 - Instalar dependencias
+        run: ./venv/Scripts/pip install -e .
+
+      - name: Paso 7 - Ejecutar main_extractor.py
+        run: ./venv/Scripts/python src/edu_pad/main_extractor.py
+
+      - name: Paso 8 - Ejecutar main_ingesta.py
+        run: ./venv/Scripts/python src/edu_pad/main_ingesta.py
+
+      - name: Paso 9 - Guardar el commit con los últimos cambios desde pipeline
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Genera archivo csv de las web
+          commit_message: Genera archivos csv desde extractor e ingesta
           commit_user_name: Juan Suarez [GitHub Actions]
           commit_user_email: juan.suarezs@est.iudigital.edu.co
           commit_author: Juan Suarez <juan.suarezs@est.iudigital.edu.co>
