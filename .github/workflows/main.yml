@@ -35,7 +35,10 @@ jobs:
         run: python src/edu_pad/main_extractor.py
 
       - name: Paso 8 - Ejecutar main_ingesta.py
-        run: python src/edu_pad/main_ingesta.py
+        run: |
+          set PYTHONPATH=src
+          ./venv/Scripts/python src/edu_pad/main_ingesta.py
+
 
       - name: Paso 9 - Guardar el commit con los últimos cambios desde pipeline
         uses: stefanzweifel/git-auto-commit-action@v5
