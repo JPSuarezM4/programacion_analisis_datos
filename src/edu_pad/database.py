@@ -15,7 +15,7 @@ class DataBase:
             conn = sqlite3.connect(self.rutadb)
             df["fecha_create"]= "2025-05-5"
             df["fecha_update"] = "2025-05-5"
-            df.to_sql("solr_analisis",conn,if_exists='replace',index=False)
+            df.to_sql("sol_analisis",conn,if_exists='replace',index=False)
             print("*******************************************************************")
             print("Datos guardados")
             print("*******************************************************************")
