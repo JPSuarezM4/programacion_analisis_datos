@@ -26,16 +26,16 @@ jobs:
         run: ./venv/Scripts/activate
 
       - name: Paso 5 - Actualizar pip
-        run: ./venv/Scripts/pip install --upgrade pip
+        run: pip install --upgrade pip
 
       - name: Paso 6 - Instalar dependencias
-        run: ./venv/Scripts/pip install -e .
+        run: pip install -e .
 
       - name: Paso 7 - Ejecutar main_extractor.py
-        run: ./venv/Scripts/python src/edu_pad/main_extractor.py
+        run: python src/edu_pad/main_extractor.py
 
       - name: Paso 8 - Ejecutar main_ingesta.py
-        run: ./venv/Scripts/python src/edu_pad/main_ingesta.py
+        run: python src/edu_pad/main_ingesta.py
 
       - name: Paso 9 - Guardar el commit con los últimos cambios desde pipeline
         uses: stefanzweifel/git-auto-commit-action@v5
