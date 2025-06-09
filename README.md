@@ -1,53 +1,56 @@
-<p align="center"><h1 align="center">PROGRAMACION_ANALISIS_DATOS</h1></p>
-<p align="center">
-	<em><code>❯ REPLACE-ME</code></em>
-</p>
-<p align="center">
-	<img src="https://img.shields.io/github/license/JPSuarezM4/programacion_analisis_datos?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
-	<img src="https://img.shields.io/github/last-commit/JPSuarezM4/programacion_analisis_datos?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
-	<img src="https://img.shields.io/github/languages/top/JPSuarezM4/programacion_analisis_datos?style=default&color=0080ff" alt="repo-top-language">
-	<img src="https://img.shields.io/github/languages/count/JPSuarezM4/programacion_analisis_datos?style=default&color=0080ff" alt="repo-language-count">
-</p>
-<p align="center"><!-- default option, no dependency badges. -->
-</p>
-<p align="center">
-	<!-- default option, no dependency badges. -->
-</p>
-<br>
+# Workflow de ETL para Datos del Dólar con GitHub Actions
 
-##  Table of Contents
+Este proyecto implementa un flujo completo de ETL (Extracción, Transformación y Carga) para datos del dólar usando GitHub Actions como orquestador de CI/CD.
 
-- [ Overview](#-overview)
-- [ Features](#-features)
-- [ Project Structure](#-project-structure)
-  - [ Project Index](#-project-index)
-- [ Getting Started](#-getting-started)
-  - [ Prerequisites](#-prerequisites)
-  - [ Installation](#-installation)
-  - [ Usage](#-usage)
-  - [ Testing](#-testing)
-- [ Project Roadmap](#-project-roadmap)
-- [ Contributing](#-contributing)
-- [ License](#-license)
-- [ Acknowledgments](#-acknowledgments)
+## Estructura del Flujo de Trabajo con Docker en GitHub Actions
+
+El proceso está centralizado en un único workflow Docker (`docker.yml`) que automatiza la construcción y ejecución de contenedores para manejar el flujo de datos.
+
+### 1. Build & Setup Docker Image
+- Se ejecuta al hacer push al branch principal (`main`).
+- Realiza checkout del repositorio.
+- Hace login en Docker Hub con las credenciales almacenadas en los secrets de GitHub.
+- Construye la imagen Docker nombrada `contenedor` usando el Dockerfile del proyecto.
+
+### 2. Data Extraction (Contenedor Docker)
+- Ejecuta el script de extracción (`main_extractor.py`) dentro del contenedor Docker.
+- Monta los volúmenes locales `static/csv` y `static/db` para persistencia de archivos CSV y base de datos.
+- Extrae datos desde la fuente (Yahoo Finance) y guarda el CSV dentro del volumen compartido.
+
+### 3. Data Ingestion (Contenedor Docker)
+- Ejecuta el script de ingesta (`main_ingesta.py`) dentro del contenedor Docker.
+- Usa los mismos volúmenes para leer el CSV generado y cargar los datos en la base de datos SQLite.
+- Elimina el archivo CSV temporal después de la ingesta.
 
 ---
 
-##  Overview
+### Resumen
 
-<code>❯ REPLACE-ME</code>
-
----
-
-##  Features
-
-<code>❯ REPLACE-ME</code>
+| Etapa                  | Acción                             | Frecuencia/Ejecución              |
+|------------------------|----------------------------------|---------------------------------|
+| Build Docker Image      | Construcción de imagen `contenedor` | Al hacer push a `main`           |
+| Data Extraction        | Ejecutar `main_extractor.py` en Docker | Automático dentro del workflow  |
+| Data Ingestion         | Ejecutar `main_ingesta.py` en Docker | Automático justo después de extracción |
 
 ---
 
-##  Project Structure
+Este flujo aprovecha la portabilidad y consistencia que ofrece Docker, asegurando que la extracción y la ingesta de datos se ejecuten en un entorno controlado y reproducible.
 
-```sh
+
+## Requisitos para la Configuración
+
+Para que este workflow funcione correctamente, necesitas configurar los siguientes secretos en GitHub:
+
+1. Para el envío de alertas por correo electrónico:
+   - `EMAIL_SENDER`: Dirección de correo del remitente
+   - `EMAIL_RECEIVER`: Dirección de correo del destinatario
+   - `EMAIL_PASSWORD`: Contraseña o token de la cuenta del remitente
+   - `SMTP_SERVER`: Servidor SMTP (valor predeterminado: smtp.gmail.com)
+   - `SMTP_PORT`: Puerto SMTP (valor predeterminado: 587)
+
+## Estructura del Proyecto
+
+```
 └── programacion_analisis_datos/
     ├── .github
     │   └── workflows
@@ -68,214 +71,30 @@
     └── tabla.html
 ```
 
+## Instalación
 
-###  Project Index
-<details open>
-	<summary><b><code>PROGRAMACION_ANALISIS_DATOS/</code></b></summary>
-	<details> <!-- __root__ Submodule -->
-		<summary><b>__root__</b></summary>
-		<blockquote>
-			<table>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/main.yml'>main.yml</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/dockerfile'>dockerfile</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/tabla.html'>tabla.html</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/setup.py'>setup.py</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			</table>
-		</blockquote>
-	</details>
-	<details> <!-- .github Submodule -->
-		<summary><b>.github</b></summary>
-		<blockquote>
-			<details>
-				<summary><b>workflows</b></summary>
-				<blockquote>
-					<table>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/.github/workflows/docker.yml'>docker.yml</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					</table>
-				</blockquote>
-			</details>
-		</blockquote>
-	</details>
-	<details> <!-- src Submodule -->
-		<summary><b>src</b></summary>
-		<blockquote>
-			<details>
-				<summary><b>edu_pad</b></summary>
-				<blockquote>
-					<table>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/src/edu_pad/dataweb.py'>dataweb.py</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/src/edu_pad/database.py'>database.py</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/src/edu_pad/monitor.py'>monitor.py</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/src/edu_pad/main_extractor.py'>main_extractor.py</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/src/edu_pad/main_ingesta.py'>main_ingesta.py</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					<tr>
-						<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/src/edu_pad/prueba.py'>prueba.py</a></b></td>
-						<td><code>❯ REPLACE-ME</code></td>
-					</tr>
-					</table>
-				</blockquote>
-			</details>
-		</blockquote>
-	</details>
-	<details> <!-- edu_pad.egg-info Submodule -->
-		<summary><b>edu_pad.egg-info</b></summary>
-		<blockquote>
-			<table>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/edu_pad.egg-info/requires.txt'>requires.txt</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/edu_pad.egg-info/PKG-INFO'>PKG-INFO</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/edu_pad.egg-info/top_level.txt'>top_level.txt</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/edu_pad.egg-info/dependency_links.txt'>dependency_links.txt</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			<tr>
-				<td><b><a href='https://github.com/JPSuarezM4/programacion_analisis_datos/blob/master/edu_pad.egg-info/SOURCES.txt'>SOURCES.txt</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
-			</tr>
-			</table>
-		</blockquote>
-	</details>
-</details>
+1. Clona este repositorio
+2. Configura los secretos en GitHub
+3. Los workflows se ejecutarán automáticamente según lo programado o puedes iniciarlos manualmente
 
----
-##  Getting Started
+## Características Principales
 
-###  Prerequisites
+- **Modular**: Cada fase del ETL está en su propio archivo YAML
+- **Condicional**: Los jobs dependen del éxito de los anteriores
+- **Monitoreo automatizado**: Análisis de tendencias y detección de anomalías
+- **Alertas**: Notificaciones por correo cuando hay problemas o cambios importantes
+- **Persistencia de artefactos**: Los datos y logs se conservan entre ejecuciones
+- **Instalación simplificada**: Utiliza setup.py para gestionar dependencias
 
-Before getting started with programacion_analisis_datos, ensure your runtime environment meets the following requirements:
+## Personalización
 
-- **Programming Language:** Python
+Para adaptar este workflow a tus necesidades:
 
-
-###  Installation
-
-Install programacion_analisis_datos using one of the following methods:
-
-**Build from source:**
-
-1. Clone the programacion_analisis_datos repository:
-```sh
-❯ git clone https://github.com/JPSuarezM4/programacion_analisis_datos
-```
-
-2. Navigate to the project directory:
-```sh
-❯ cd programacion_analisis_datos
-```
-
-3. Install the project dependencies:
-
-echo 'INSERT-INSTALL-COMMAND-HERE'
-
-
-
-###  Usage
-Run programacion_analisis_datos using the following command:
-echo 'INSERT-RUN-COMMAND-HERE'
-
-###  Testing
-Run the test suite using the following command:
-echo 'INSERT-TEST-COMMAND-HERE'
-
----
-##  Project Roadmap
-
-- [X] **`Task 1`**: <strike>Implement feature one.</strike>
-- [ ] **`Task 2`**: Implement feature two.
-- [ ] **`Task 3`**: Implement feature three.
+1. Modifica `dataweb.py` para extraer datos de otras fuentes
+2. Ajusta la frecuencia de ejecución modificando las expresiones cron en los archivos YAML
+3. Añade más análisis o transformaciones en la clase `DatabaseMonitor`
+4. Actualiza `setup.py` si necesitas instalar paquetes adicionales
 
 ---
 
-##  Contributing
-
-- **💬 [Join the Discussions](https://github.com/JPSuarezM4/programacion_analisis_datos/discussions)**: Share your insights, provide feedback, or ask questions.
-- **🐛 [Report Issues](https://github.com/JPSuarezM4/programacion_analisis_datos/issues)**: Submit bugs found or log feature requests for the `programacion_analisis_datos` project.
-- **💡 [Submit Pull Requests](https://github.com/JPSuarezM4/programacion_analisis_datos/blob/main/CONTRIBUTING.md)**: Review open PRs, and submit your own PRs.
-
-<details closed>
-<summary>Contributing Guidelines</summary>
-
-1. **Fork the Repository**: Start by forking the project repository to your github account.
-2. **Clone Locally**: Clone the forked repository to your local machine using a git client.
-   ```sh
-   git clone https://github.com/JPSuarezM4/programacion_analisis_datos
-   ```
-3. **Create a New Branch**: Always work on a new branch, giving it a descriptive name.
-   ```sh
-   git checkout -b new-feature-x
-   ```
-4. **Make Your Changes**: Develop and test your changes locally.
-5. **Commit Your Changes**: Commit with a clear message describing your updates.
-   ```sh
-   git commit -m 'Implemented new feature x.'
-   ```
-6. **Push to github**: Push the changes to your forked repository.
-   ```sh
-   git push origin new-feature-x
-   ```
-7. **Submit a Pull Request**: Create a PR against the original project repository. Clearly describe the changes and their motivations.
-8. **Review**: Once your PR is reviewed and approved, it will be merged into the main branch. Congratulations on your contribution!
-</details>
-
-<details closed>
-<summary>Contributor Graph</summary>
-<br>
-<p align="left">
-   <a href="https://github.com{/JPSuarezM4/programacion_analisis_datos/}graphs/contributors">
-      <img src="https://contrib.rocks/image?repo=JPSuarezM4/programacion_analisis_datos">
-   </a>
-</p>
-</details>
-
----
-
-##  License
-
-This project is protected under the [SELECT-A-LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
-
----
-
-##  Acknowledgments
-
-- List any resources, contributors, inspiration, etc. here.
-
----
+Creado para la formacion de analitica de datos utilizando GitHub Actions y Python
