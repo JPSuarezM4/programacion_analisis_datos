@@ -1,4 +1,4 @@
-# Workflow de ETL para Datos del Dólar con GitHub Actions
+# Workflow de ETL para Datos de la CRIPTO SOLANA con GitHub Actions
 
 Este proyecto implementa un flujo completo de ETL (Extracción, Transformación y Carga) para datos del dólar usando GitHub Actions como orquestador de CI/CD.
 
