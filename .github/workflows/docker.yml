@@ -1,4 +1,4 @@
-name: pruebas hola mundo docker
+name: deployment
 
 on:
   push:
