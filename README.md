@@ -79,12 +79,14 @@ Para que este workflow funcione correctamente, necesitas configurar los siguient
 
 ## Características Principales
 
-- **Modular**: Cada fase del ETL está en su propio archivo YAML
-- **Condicional**: Los jobs dependen del éxito de los anteriores
-- **Monitoreo automatizado**: Análisis de tendencias y detección de anomalías
-- **Alertas**: Notificaciones por correo cuando hay problemas o cambios importantes
-- **Persistencia de artefactos**: Los datos y logs se conservan entre ejecuciones
-- **Instalación simplificada**: Utiliza setup.py para gestionar dependencias
+- **Unificado**: Todo el flujo ETL se ejecuta dentro de un contenedor Docker para garantizar consistencia y portabilidad.
+- **Automatizado**: Construcción de imagen Docker y ejecución de los procesos de extracción e ingesta en un solo workflow.
+- **Montaje de volúmenes**: Uso de volúmenes para persistencia de archivos CSV y base de datos SQLite entre ejecuciones.
+- **Aislamiento del entorno**: Los procesos corren dentro del contenedor, evitando conflictos de dependencias y configuración local.
+- **Reutilización de imágenes**: La imagen Docker se construye y puede usarse para diferentes etapas sin reconstruir.
+- **Facilidad de despliegue**: Integración directa con Docker Hub mediante login automático para subir o usar imágenes privadas.
+- **Integración continua**: El workflow se dispara automáticamente al hacer push a la rama principal (`main`), manteniendo el pipeline actualizado.
+
 
 ## Personalización
 
