@@ -1,13 +1,13 @@
-from src.edu_pad.dataweb import Dataweb
+from src.edu_pad.dataweb import YahooFinanceScraper
 import pandas as pd
 
 
 
 def main_1():
-    dataweb = Dataweb()
-    df = dataweb.get_data() 
-    df = dataweb.convertir_numericos(df) # capa 2 
+    scraper = YahooFinanceScraper()
+    df = scraper.extraer_datos()
     df.to_csv("src/edu_pad/static/csv/data_extractor.csv", index=False)
+
 
 
 
