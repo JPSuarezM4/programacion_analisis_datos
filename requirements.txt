@@ -1,0 +1,12 @@
+pandas
+openpyxl
+requests
+beautifulsoup4
+streamlit
+ydata-profiling>=4.5.0,<4.7.0
+plotly
+streamlit-plotly-events
+streamlit-ace
+streamlit-option-menu
+streamlit-aggrid
+streamlit-extras

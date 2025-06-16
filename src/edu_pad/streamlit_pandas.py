@@ -11,7 +11,7 @@ def main():
     
 
     df = pd.read_csv("src/edu_pad/static/csv/data_extractor.csv")
-    columnas = ["abrir","max","min","cerrar","cierre_ajustado","volumen","indicador"]
+    columnas = ["fecha","abrir","max","min","cerrar","cierre_ajustado","volumen"]
     df_2 = df[columnas]
     profile = ProfileReport(df_2, title="Dashboard Indicador Dolar")
     st.title("Análisis de Datos")
