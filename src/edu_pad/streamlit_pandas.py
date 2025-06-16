@@ -13,7 +13,7 @@ def main():
     df = pd.read_csv("src/edu_pad/static/csv/data_extractor.csv")
     columnas = ["fecha","abrir","max","min","cerrar","cierre_ajustado","volumen"]
     df_2 = df[columnas]
-    profile = ProfileReport(df_2, title="Dashboard Indicador Dolar")
+    profile = ProfileReport(df_2, title="Dashboard Indicador SOL")
     st.title("Análisis de Datos")
     #st.write(profile.to_html(),unsafe_allow_html=True)
     st.components.v1.html(profile.to_html(), height=600, scrolling=True)
